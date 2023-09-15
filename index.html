@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+   <meta name="viewport" content="width=device-width" />
+  <title>Exemplo de Requisição XMLHttpRequest</title>
+   <style>
+    html {
+      background-color: #00539f;
+    }
+
+    #cat-images {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #cat-images img {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+      margin-bottom: 20px;
+      border: 5px solid white;
+    }
+  </style>
+</head>
+<body>
+  <div id="cat-images"></div>
+
+   <script>
+  const requisicao = new XMLHttpRequest();
+  let page = 1;
+
+  function loadMoreImages() {
+    requisicao.open('GET', `https://api.thecatapi.com/v1/images/search?limit=5&page=${page}`);
+    requisicao.onload = () => {
+      if (requisicao.status === 200) {
+        const response = JSON.parse(requisicao.responseText);
+        const catImages = response.map(cat => cat.url);
+
+        const imageContainer = document.getElementById('cat-images');
+        catImages.forEach(imageUrl => {
+          const imgElement = document.createElement('img');
+          imgElement.src = imageUrl;
+          imgElement.alt = 'Cat';
+          imageContainer.appendChild(imgElement);
+        });
+
+        page++; // Incrementa o número da página para a próxima requisição
+      }
+    };
+
+    requisicao.send();
+  }
+
+  function handleScroll() {
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const scrollBottom = scrollTop + windowHeight;
+
+    if (scrollBottom >= documentHeight - 100) {
+      loadMoreImages();
+    }
+  }
+
+  window.addEventListener('scroll', handleScroll);
+  loadMoreImages(); // Carrega as primeiras imagens ao carregar a página
+</script>
+
+</body>
+</html>
